@@ -1,0 +1,118 @@
+GROUP BY `Customer Type`;
+First-time	0.2399
+Returning	0.4781
+Thoughts: People who are returning are much more satisfied at 47% while new customers are 23% satisfied. 
+5.	Does the type of travel, Personal or Business, dictate satisfaction in one way or the other? 
+-	SELECT
+-	    `Type of Travel`,
+-	    AVG(CASE WHEN satisfaction = 'satisfied' THEN 1 ELSE 0 END) AS Average_Satisfaction
+-	FROM flight_info.airline_passenger_satisfaction
+-	GROUP BY `Type of Travel`;
+Business	0.5837
+Personal	0.1013
+Thoughts: People who travel for business are 58% satisfied while Personal travel is only 10%. This could be a good point for visualization. 
+6.	Does the class have any indication of satisfaction?
+-	SELECT
+-	    Class,
+-	    AVG(CASE WHEN satisfaction = 'satisfied' THEN 1 ELSE 0 END) AS Average_Satisfaction
+-	FROM flight_info.airline_passenger_satisfaction
+-	GROUP BY class;
+Business	0.6945
+Economy	0.1876
+Economy Plus	0.2463
+Thoughts: Business class is much more satisfied at 69% while economy plus is 24% and Economy is 18%. This could be a good point to show visilization.
+7.	Does the length of the flight decrease satisfaction in a logical consistent manner? 
+SELECT
+    CASE
+        WHEN `Flight Distance` BETWEEN 1 AND 1000 THEN '1-1000'
+        WHEN `Flight Distance` BETWEEN 1001 AND 2000 THEN '1001-2000'
+        WHEN `Flight Distance` BETWEEN 2001 AND 3000 THEN '2001-3000'
+        WHEN `Flight Distance` BETWEEN 3001 AND 4000 THEN '3001-4000'
+		WHEN `Flight Distance` BETWEEN 4001 AND 5000 THEN '4001-5000'
+    END AS Distance_Range,
+    AVG(`Flight Distance`) AS Average_Distance,
+    AVG(CASE WHEN satisfaction = 'satisfied' THEN 1 ELSE 0 END) AS Average_Satisfaction
+FROM flight_info.airline_passenger_satisfaction
+GROUP BY Distance_Range
+ORDER BY distance_range;
+1-1000	499.9004	0.3306
+1001-2000	1436.3216	0.4612
+2001-3000	2459.9004	0.6499
+3001-4000	3505.7314	0.7750
+4001-5000	4660.8205	0.5513
+Thoughts: Interestingly the shortest distance traveler customers are some of the least satisfied. I wonder if this has something to do with more people go shorter distance for personal use since personal travel customers were much more dissatisfied. It does seem like there is a sweet spot for customer as 3000-4000 miles worth of travel.
+8.	How does gate location play a role in satisfaction?
+SELECT 
+    AVG(`Gate Location`) AS AVG_satisfaction_from_gate_location,
+AVG(CASE WHEN satisfaction = 'satisfied' THEN 1 ELSE 0 END) AS Average_Satisfaction
+FROM `flight_info`.`airline_passenger_satisfaction`
+group by `Gate Location`
+order by `Gate Location`
+0.0000	1.0000
+1.0000	0.4986
+2.0000	0.4645
+3.0000	0.3470
+4.0000	0.3907
+5.0000	0.5679
+Thoughts: From the query I can’t see any correlation showing that the gate location has anything to do with satisfaction. 
+9.	Does high rated baggage handling correlate to higher customer satisfaction?
+SELECT 
+    AVG(`Baggage Handling`) AS Baggage_ratings,
+AVG(CASE WHEN satisfaction = 'satisfied' THEN 1 ELSE 0 END) AS Average_Satisfaction
+FROM `flight_info`.`airline_passenger_satisfaction`
+group by `Baggage Handling`
+order by `Baggage Handling`
+# Baggage_ratings, Average_Satisfaction
+'1.0000', '0.3002'
+'2.0000', '0.2945'
+'3.0000', '0.2378'
+'4.0000', '0.4807'
+'5.0000', '0.6160'
+Thoughts: from this I can see that if the satisfaction is a 5 for baggage handling, then the satisfaction rating goes up substantially almost 61% of the time. 
+10.	Do customers that rate the online booking high also rate other categories high?
+SELECT 
+    AVG(`Ease of Online Booking`) AS Baggage_ratings,
+AVG(CASE WHEN satisfaction = 'satisfied' THEN 1 ELSE 0 END) AS Average_Satisfaction
+FROM `flight_info`.`airline_passenger_satisfaction`
+group by `Ease of Online Booking`
+order by `Ease of Online Booking`
+# Baggage_ratings, Average_Satisfaction
+'0.0000', '0.6661'
+'1.0000', '0.3795'
+'2.0000', '0.3037'
+'3.0000', '0.3100'
+'4.0000', '0.5317'
+'5.0000', '0.7346'
+Thoughts: from this Query I can see that ease of Online booking has a massive impact on satisfaction. A 5 rating is almost 73% satisfied and gradually decreases. 
+
+11.	Attributes that effect satisfaction the most. 
+Combined seat comfort leg room service has a massive effect on satisfaction. 
+SELECT
+    ((`Seat Comfort` + `Leg Room Service`) / 2) AS Combined_Comfort_Legroom,
+    AVG(CASE WHEN satisfaction = 'satisfied' THEN 1 ELSE 0 END) AS Average_Satisfied
+FROM flight_info.airline_passenger_satisfaction
+GROUP BY Combined_Comfort_Legroom
+ORDER BY Combined_Comfort_Legroom;
+'0.5000', '0.3077'
+'1.0000', '0.1183'
+'1.5000', '0.1417'
+'2.0000', '0.1457'
+'2.5000', '0.2154'
+'3.0000', '0.2921'
+'3.5000', '0.3631'
+'4.0000', '0.5846'
+'4.5000', '0.7757'
+'5.0000', '0.7862'
+12.	In flight WIFI also has a big correlation with satisfaction
+select `In-flight Wifi Service`,
+avg(case when satisfaction ='satisfied' then 1 else 0 end) AS average_satisfaction
+from flight_info.airline_passenger_satisfaction
+group by `In-flight Wifi Service`
+order by `In-flight Wifi Service`
+# In-flight Wifi Service, average_satisfaction
+'0', '0.9974'
+'1', '0.3282'
+'2', '0.2474'
+'3', '0.2518'
+'4', '0.6009'
+'5', '0.9901'
