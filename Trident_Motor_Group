@@ -1,0 +1,180 @@
+1.	Does CSAT ratings change depending on in-network vs. out-of-network?
+
+SELECT
+    `In vs. Out of Network Service Provider`,
+    SUM(`CSAT Rating`) / COUNT(*) AS average_csat_score_out_of_5
+FROM
+    `tridentmotors`.`trident motors jobs (3) (1)`
+WHERE
+    `CSAT Rating` IS NOT NULL
+    AND `CSAT Rating` BETWEEN 1 AND 5
+    AND `In vs. Out of Network Service Provider` IS NOT NULL
+GROUP BY
+    `In vs. Out of Network Service Provider`; 
+# In vs. Out of Network Service Provider, average_csat_score_out_of_5
+'In-Network', '4.638349514563107'
+'Out-of-Network', '4.409240924092409'
+From this we can determine that there is not much difference between IN-network and OUT-of-network when it comes to CSAT rating. 
+2.	What is the average difference between estimated time of arrival and actual time of arrival for each service type?
+SELECT
+    `Service Type`,AVG(`Actual Time of Arrival (Min)` - `Estimated Time of Arrival (Min)`) AS average_time_difference
+FROM
+    `tridentmotors`.`trident motors jobs (3) (1)`
+WHERE
+    `Estimated Time of Arrival (Min)` IS NOT NULL
+    AND `Actual Time of Arrival (Min)` IS NOT NULL
+group by `Service Type`;
+# Service Type, average_time_difference
+'Towing', '-3.4080858851674667'
+'Flat Tire', '-4.057931234668848'
+'Auto Lockout', '-5.583098325991189'
+'Fuel', '-4.238427777777779'
+'Jump Start', '-3.937865263157895'
+'Winch', '-13.972219444444441'
+'Heavy Duty TOW', '-5.3367512820512815'
+'Medium Duty TOW', '-6.016463855421688'
+'Accident Tow', '1.0797055555555555'
+'Medium/Heavy Duty RSA', '-3.825546666666667'
+
+These calculations indicate most services happen sooner then estimated which is a positive trend. 
+3.	Is there a specific State that have higher demand?
+SELECT
+    `State`,
+    COUNT(`Service Type`) AS demand_count
+FROM
+    `tridentmotors`.`trident motors jobs (3) (1)`
+GROUP BY
+    `State`
+ORDER BY
+    demand_count DESC
+# State, demand_count
+'Arizona', '4299'
+'Kansas', '2135'
+'Utah', '816'
+'Hawaii', '732'
+'Puerto Rico', '652'
+'Iowa', '337'
+'New York', '309'
+'Colorado', '291'
+'DC', '218'
+'Michigan', '21'
+'Australia', '1'
+Arizona seems to be the most service demanded area. 
+4.	What are the statistics for the service type?
+a.	What service is requested most often?
+SELECT
+    `Service Type`,
+    COUNT(*) AS request_count
+FROM
+    `tridentmotors`.`trident motors jobs (3) (1)`
+GROUP BY
+    `Service Type`
+ORDER BY
+    request_count DESC;
+# Service Type, request_count
+'Towing', '5852'
+'Flat Tire', '1223'
+'Jump Start', '1140'
+'Auto Lockout', '1135'
+'Accident Tow', '216'
+'Medium Duty TOW', '83'
+'Fuel', '72'
+'Heavy Duty TOW', '39'
+'Winch', '36'
+'Medium/Heavy Duty RSA', '15'
+The most requested service requested is definitely towing. 
+b.	What service is the least requested?
+Medium/Heavy Duty RSA is the least requested service. 
+c.	What are the average times for each type of service?
+SELECT
+    `Service Type`,
+    COUNT(*) AS request_count,
+    Avg(`Customer Wait Time (Min)`) AS average_wait_time
+FROM
+    `tridentmotors`.`trident motors jobs (3) (1)`
+GROUP BY
+    `Service Type`
+ORDER BY
+    request_count DESC;
+# Service Type, request_count, average_wait_time
+'Towing', '5852', '66.24364579630891'
+'Flat Tire', '1223', '51.307591741619035'
+'Jump Start', '1140', '44.88007368421052'
+'Auto Lockout', '1135', '50.4350817621145'
+'Accident Tow', '216', '70.51156990740742'
+'Medium Duty TOW', '83', '83.1853409638554'
+'Fuel', '72', '50.44305972222221'
+'Heavy Duty TOW', '39', '94.12478974358974'
+'Winch', '36', '62.093061111111105'
+'Medium/Heavy Duty RSA', '15', '73.81333333333333'
+5.	How long does it take to assign a job depending on the job acceptance channel?
+SELECT
+    `Job Accept Channel`,`Service Type`,
+    AVG(`Time to Assign Job (Min)`) AS average_time_to_assign
+FROM
+    `tridentmotors`.`trident motors jobs (3) (1)`
+GROUP BY
+    `Job Accept Channel`,`Service Type`;
+# Job Accept Channel, Service Type, average_time_to_assign
+'Digital', 'Towing', '3.6367434936350698'
+'Call Center', 'Towing', '37.91296142857144'
+'Digital', 'Flat Tire', '3.593241325966853'
+'Digital', 'Auto Lockout', '3.2845736353077815'
+'Call Center', 'Flat Tire', '33.667142138364795'
+'Call Center', 'Fuel', '32.99638260869565'
+'Call Center', 'Auto Lockout', '34.1574810218978'
+'Digital', 'Jump Start', '2.4037232776617943'
+'Call Center', 'Winch', '43.12666800000001'
+'Call Center', 'Jump Start', '25.800458791208783'
+'Call Center', 'Heavy Duty TOW', '56.93656451612904'
+'Call Center', 'Medium Duty TOW', '50.5644891304348'
+'Digital', 'Heavy Duty TOW', '1.745825'
+'Digital', 'Fuel', '4.288781632653061'
+'Call Center', 'Accident Tow', '41.48576041666667'
+'Digital', 'Medium Duty TOW', '10.02117027027027'
+'Digital', 'Accident Tow', '6.972080833333335'
+'Digital', 'Winch', '3.198490909090909'
+'Call Center', 'Medium/Heavy Duty RSA', '42.82499166666667'
+'Digital', 'Medium/Heavy Duty RSA', '26.894433333333335'
+Digital for job acceptance channel is much quicker in most categories. 
+6.	Is there a correlation between tow miles and a specific service type?
+select `Service Type`,avg(`Tow Miles`)
+from `tridentmotors`.`trident motors jobs (3) (1)`
+group by `Service Type`;
+# Service Type, avg(`Tow Miles`)
+'Towing', '10.769480519480519'
+'Flat Tire', '0'
+'Auto Lockout', '0'
+'Fuel', '0'
+'Jump Start', '0.009649122807017544'
+'Winch', '0'
+'Heavy Duty TOW', '25.46153846153846'
+'Medium Duty TOW', '21.36144578313253'
+'Accident Tow', '12.666666666666666'
+'Medium/Heavy Duty RSA', '0'
+So, tow miles are only attributed to anything to do with towing. No other services. 
+7.	Is there a correlation between the hour of day and wait times?
+
+8.	Vote cast for CSAT ratings
+SELECT
+    CASE
+        WHEN `CSAT Rating` IS NULL THEN 'No Vote'
+        ELSE CAST(`CSAT Rating` AS CHAR)
+    END AS rating,
+    COUNT(*) AS vote_count
+FROM
+    `tridentmotors`.`trident motors jobs (3) (1)`
+WHERE
+    `CSAT Rating` BETWEEN 1 AND 5
+GROUP BY
+    rating
+ORDER BY
+    rating;
+# rating, vote_count
+'1', '85'
+'2', '45'
+'3', '57'
+'4', '186'
+'5', '1578'
+
+The amount of votes for 5 stars is astronomically higher.
